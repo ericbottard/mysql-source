@@ -1,0 +1,23 @@
+= MySQL Source
+
+This repository contains a very simplistic "source" for riff streaming that
+can connect to a MySQL server and emit messages as a result of SELECTing rows.
+The TABLE of interest should have a column dedicated to marking rows that have
+already been processed.
+
+Refer to link:config/mysql-source.yaml[mysql-source.yaml] for an example of
+environment variables used to configure the source. The `DATASOURCE` variable
+should conform to a https://github.com/go-sql-driver/mysql#dsn-data-source-name[DSN].
+
+## Installation
+Prerequisites for the out-of-the-box experience:
+
+* riff with streaming enabled
+* an instance of KafkaProvider created, named "franz"
+* a secret named `mysql-connection` with a `dataSourceName` key
+* a table named `events` with columns `id` (PK), `contents` (string data), and `status`.
+
+[source, bash]
+----
+ko apply -f config/
+----

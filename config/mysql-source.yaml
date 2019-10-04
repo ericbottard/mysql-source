@@ -1,0 +1,30 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mysql-source
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mysql-source
+              image: github.com/projectriff-samples/mysql-source/cmd
+              env:
+              - name: QUERY
+                value: "SELECT id, contents FROM events WHERE status IS NULL"
+              - name: UPDATE
+                value: "UPDATE events SET status = 'READ' where id = ?"
+              - name: TOPICS
+                value: default_out
+              - name: GATEWAY
+                value: franz-kafka-liiklus.default:6565
+              - name: EXPECTED_CONTENT_TYPES
+                value: "text/plain"
+              - name: DATASOURCE
+                valueFrom:
+                  secretKeyRef:
+                    name: mysql-connection
+                    key: dataSourceName
+          restartPolicy: OnFailure
