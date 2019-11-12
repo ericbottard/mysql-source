@@ -18,9 +18,10 @@ package source
 import (
 	"context"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/projectriff/http-gateway/pkg/client"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+	client "github.com/projectriff/stream-client-go"
 )
 
 type source struct {
@@ -30,7 +31,7 @@ type source struct {
 	db           *sql.DB
 }
 
-func NewSource(query string, update string, dataSourceName string,  streamClient *client.StreamClient) (*source, error) {
+func NewSource(query string, update string, dataSourceName string, streamClient *client.StreamClient) (*source, error) {
 
 	var db *sql.DB
 	var updateStmt *sql.Stmt
@@ -76,7 +77,7 @@ func (s *source) Run(ctx context.Context) (int, error) {
 }
 
 func (s *source) Close() error {
-	if err := s.db.Close() ; err != nil {
+	if err := s.db.Close(); err != nil {
 		return err
 	} else {
 		return s.streamClient.Close()

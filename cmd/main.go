@@ -18,9 +18,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/projectriff-samples/mysql-source/pkg/source"
-	client2 "github.com/projectriff/http-gateway/pkg/client"
 	"os"
+
+	"github.com/projectriff-samples/mysql-source/pkg/source"
+	client "github.com/projectriff/stream-client-go"
 )
 
 func main() {
@@ -29,23 +30,22 @@ func main() {
 	dataSourceName := os.Getenv("DATASOURCE")
 	gateway := os.Getenv("GATEWAY")
 	topics := os.Getenv("TOPICS")
-	if query == "" || update == "" || dataSourceName == "" || gateway == "" || topics == ""{
+	if query == "" || update == "" || dataSourceName == "" || gateway == "" || topics == "" {
 		panic("Expected all of the following ENV VARS to be set: QUERY, UPDATE, DATASOURCE, GATEWAY and TOPICS")
 	}
 
-
-	var client *client2.StreamClient
+	var streamClient *client.StreamClient
 	var err error
-	if client, err = client2.NewStreamClient(gateway, topics, "text/plain") ; err != nil {
+	if streamClient, err = client.NewStreamClient(gateway, topics, "text/plain"); err != nil {
 		panic(err)
 	}
 
-	s, err := source.NewSource(query, update, dataSourceName, client)
+	s, err := source.NewSource(query, update, dataSourceName, streamClient)
 	if err != nil {
 		panic(err)
 	}
 
-	if n, err := s.Run(context.Background()) ; err != nil {
+	if n, err := s.Run(context.Background()); err != nil {
 		panic(err)
 	} else {
 		fmt.Printf("Emitted %d messages on %s\n", n, topics)
